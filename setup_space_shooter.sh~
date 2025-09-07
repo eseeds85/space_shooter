@@ -1,0 +1,69 @@
+#!/usr/bin/env bash
+# Setup script for the Space Shooter (creates a local virtualenv and installs requirements)
+
+set -euo pipefail
+
+echo "=== Space Shooter Setup (venv) ==="
+
+# Resolve script directory so we put the venv next to your game
+SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
+cd "$SCRIPT_DIR"
+
+# 1) Python 3 present?
+if ! command -v python3 >/dev/null 2>&1; then
+  echo "ERROR: python3 not found. Please install Python 3 first."
+  exit 1
+fi
+
+# 2) Ensure venv module is available (Debian/Ubuntu/WSL often need python3-venv)
+if ! python3 -m venv --help >/dev/null 2>&1; then
+  echo "Python venv module not available. Attempting to install..."
+  if command -v apt-get >/dev/null 2>&1; then
+    sudo apt-get update
+    sudo apt-get install -y python3-venv
+  elif command -v dnf >/dev/null 2>&1; then
+    sudo dnf install -y python3-virtualenv python3-pip
+  elif command -v yum >/dev/null 2>&1; then
+    sudo yum install -y python3-virtualenv python3-pip
+  elif command -v pacman >/dev/null 2>&1; then
+    sudo pacman -Sy --noconfirm python-virtualenv
+  else
+    echo "Couldn't auto-install venv tools. Install a Python venv package for your OS and re-run."
+    exit 1
+  fi
+fi
+
+# 3) Create venv (if missing)
+if [ ! -d ".venv" ]; then
+  echo "Creating virtual environment in .venv ..."
+  python3 -m venv .venv
+fi
+
+# 4) Activate venv
+# shellcheck disable=SC1091
+source ".venv/bin/activate"
+
+# 5) Upgrade pip/setuptools/wheel inside the venv
+python -m pip install --upgrade pip setuptools wheel
+
+# 6) Install pygame (inside venv so PEP 668 doesn't apply)
+if ! python -c "import pygame" >/dev/null 2>&1; then
+  echo "Installing pygame in the virtualenv ..."
+  python -m pip install "pygame>=2.5"
+else
+  echo "pygame already present in the virtualenv."
+fi
+
+# 7) Create a helper launcher
+cat > run_game.sh <<'LAUNCH'
+#!/usr/bin/env bash
+set -euo pipefail
+SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
+# shellcheck disable=SC1091
+source "$SCRIPT_DIR/.venv/bin/activate"
+python "$SCRIPT_DIR/space_shooter.py"
+LAUNCH
+chmod +x run_game.sh
+
+echo "=== Setup complete! ==="
+echo "To play, run: ./run_game.sh"
