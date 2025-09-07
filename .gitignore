@@ -1,0 +1,56 @@
+# --- Python ---
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.so
+*.egg-info/
+*.egg
+*.log
+
+# Byte-compiled / optimized / DLL files
+*.pyc
+*.pyo
+*.pyd
+
+# Virtual environments
+.venv/
+venv/
+env/
+ENV/
+.venvs/
+.Python
+
+# Build / packaging
+build/
+dist/
+
+# Unit test / coverage reports
+.coverage
+.tox/
+pytest_cache/
+htmlcov/
+
+# --- Emacs ---
+# Backup files
+*~
+\#*\#
+.#*
+
+# Autosave files
+*.elc
+auto-save-list/
+tramp
+
+# Lockfiles
+.dir-locals.el
+.projectile
+
+# Emacs temp files
+/.emacs.desktop
+/.emacs.desktop.lock
+*.tmp
+
+# --- OS / misc ---
+.DS_Store
+Thumbs.db
